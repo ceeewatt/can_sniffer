@@ -1,0 +1,3 @@
+[submodule "mini_j1939"]
+	path = mini_j1939
+	url = git@github.com:ceeewatt/mini_j1939.git

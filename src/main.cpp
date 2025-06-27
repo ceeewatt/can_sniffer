@@ -6,17 +6,21 @@
 
 int main(int argc, char* argv[])
 {
-    QApplication app{ argc, argv };
+    // TODO: temporary debugging
+    if (argc < 3)
+        return -1;
+    QString device_name{ argv[1] };
+    QString dbc_file_name{ argv[2] };
 
+    QApplication app{ argc, argv };
     QTableView table_view;
     CanSniffer cf{ table_view };
 
-    QFileInfo dbc{ "sample.dbc" };
+    QFileInfo dbc_file{ dbc_file_name };
+    if (dbc_file.exists())
+        cf.parse_dbc(dbc_file.absoluteFilePath());
 
-    if (dbc.exists())
-        cf.parse_dbc(dbc.absoluteFilePath());
-
-    if (!cf.select_device(QStringLiteral("vcan0")))
+    if (!cf.select_device(device_name))
         qDebug() << "Error selecting device.";
     
     if (!cf.connect_device())

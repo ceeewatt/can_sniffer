@@ -56,11 +56,17 @@ QVariant Model::data(const QModelIndex& index, int role) const
     case 0:
         return QString{ "%1" }.arg(this_frame.timestamp);
     case 1:
-        return QString{ "%1" }.arg(this_frame.id);
+        return this_frame.extended ?
+               QString{ "0x" } + QString{ "%1" }.arg(this_frame.id, 0, 16).toUpper() :
+               QString{};
     case 2:
-        return QString{ "%1" }.arg(this_frame.src);
+        return this_frame.extended ?
+               QString{ "0x" } + QString{ "%1" }.arg(this_frame.src, 0, 16).toUpper() :
+               QString{};
     case 3:
-        return QString{ "%1" }.arg(this_frame.dst);
+        return this_frame.extended ?
+               QString{ "0x" } + QString{ "%1" }.arg(this_frame.dst, 0, 16).toUpper() :
+               QString{};
     case 4:
         return QString{ "%1" }.arg(this_frame.pri);
     case 5:

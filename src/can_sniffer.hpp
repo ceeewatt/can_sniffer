@@ -77,6 +77,5 @@ private:
     const QList<quint32> pgn_whitelist{ J1939_TP_CM_PGN, J1939_TP_DT_PGN };
     void j1939_update();
     bool can_rx(struct J1939CanFrame* jframe);
-    bool j1939_msg_rx(struct J1939Msg* msg);
 
 };

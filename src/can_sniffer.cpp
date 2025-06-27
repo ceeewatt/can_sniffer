@@ -243,13 +243,6 @@ bool CanSniffer::can_rx(struct J1939CanFrame* jframe)
     }
 
     add_qframe_to_buffer(qframe);
-    return false;
-}
-
-bool CanSniffer::j1939_msg_rx(struct J1939Msg* msg)
-{
-    (void)msg;
-    return false;
     return ret;
 }
 
@@ -393,7 +386,7 @@ bool CanSniffer::can_tx_callback(struct J1939Msg* msg)
 
 void CanSniffer::j1939_msg_rx_callback(struct J1939Msg* msg)
 {
-    g_can_sniffer->j1939_msg_rx(msg);
+    g_can_sniffer->add_j1939_msg_to_buffer(msg);
 }
 
 void CanSniffer::j1939_startup_delay_callback(void* param)

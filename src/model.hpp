@@ -14,6 +14,7 @@ struct VisualFrame
     QVariantMap signal_values;
     QByteArray payload;
     QVariantMap physical_units;
+    bool extended;
 };
 
 class Model : public QAbstractTableModel

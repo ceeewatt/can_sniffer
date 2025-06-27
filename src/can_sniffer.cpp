@@ -6,7 +6,6 @@
 #include <QCanFrameProcessor>
 #include <QCanSignalDescription>
 
-
 static CanSniffer* g_can_sniffer;
 
 static uint64_t extract_raw_signal(const uint8_t* data, int bit_start, int bit_length, bool little_endian)
@@ -227,17 +226,18 @@ bool CanSniffer::can_rx(struct J1939CanFrame* jframe)
 
     QCanBusFrame qframe = device->readFrame();
 
+    bool ret = false;
     if (qframe.hasExtendedFrameFormat())
     {
-        qframe.setFrameId(qframe.frameId() | (1 << 31));
-        quint32 pgn = j1939_can_id_converter(&can_id_converter, qframe.frameId());
+        (void)j1939_can_id_converter(&can_id_converter, qframe.frameId());
+        quint32 pgn = can_id_converter.pgn;
 
         if (pgn_whitelist.contains(pgn))
         {
-            jframe->id = qframe.frameId();
+            jframe->id = qframe.frameId() | (1 << 31);
             jframe->len = qframe.payload().size();
             std::memcpy(jframe->data, qframe.payload().data(), jframe->len);
-            return true;
+            ret = true;
         }
     }
 
@@ -249,8 +249,8 @@ bool CanSniffer::j1939_msg_rx(struct J1939Msg* msg)
 {
     (void)msg;
     return false;
+    return ret;
 }
-
 
 void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
 {
@@ -258,8 +258,10 @@ void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
     quint8 dst{};
     QVariantMap signal_values;
     QVariantMap physical_units;
+    bool extended;
     if (qframe.hasExtendedFrameFormat())
     {
+        extended = true;
         if (j1939_can_id_converter(&converter, qframe.frameId()))
             dst = J1939_ADDR_GLOBAL;
         else
@@ -283,7 +285,11 @@ void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
             }
         }
     }
-    // Purposefully not parsing CAN2.0A frames.
+    else
+    {
+        // Note: Purposefully not parsing CAN2.0A frames.
+        extended = false;
+    }
 
     VisualFrame vf {
         .timestamp = get_timestamp(qframe.timeStamp()),
@@ -294,7 +300,8 @@ void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
         .len = static_cast<quint16>(qframe.payload().size()),
         .signal_values = signal_values,
         .payload = qframe.payload(),
-        .physical_units = physical_units
+        .physical_units = physical_units,
+        .extended = extended
     };
 
     buffer.enqueue(vf);
@@ -342,7 +349,8 @@ void CanSniffer::add_j1939_msg_to_buffer(const J1939Msg* msg)
         .len = msg->len,
         .signal_values = signal_values,
         .payload = QByteArray{ reinterpret_cast<char*>(msg->data), msg->len },
-        .physical_units = physical_units
+        .physical_units = physical_units,
+        .extended = true
     };
 
     buffer.enqueue(vf);

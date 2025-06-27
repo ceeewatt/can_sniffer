@@ -187,8 +187,9 @@ void CanSniffer::parse_dbc(const QString& filename)
     }
 
     msg_database = dbc_parser.messageDescriptions();
-    pgn_database.clear();
+    qDebug() << "Parsed" << msg_database.size() << "messages from file:" << filename;
 
+    pgn_database.clear();
     CanIdConverter converter;
     for (const QCanMessageDescription& msg_desc : msg_database)
     {

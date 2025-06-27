@@ -317,9 +317,9 @@ void CanSniffer::add_j1939_msg_to_buffer(const J1939Msg* msg)
         {
             raw = extract_raw_signal(msg->data, sig.startBit(), sig.bitLength(), sig.dataEndian() == QSysInfo::LittleEndian);
 
-            double factor = (sig.factor() != 0 && sig.factor() != qQNaN()) ? sig.factor() : 1;
-            double scaling = (sig.scaling() != 0 && sig.scaling() != qQNaN()) ? sig.scaling() : 1;
-            double offset = (sig.offset() != qQNaN()) ? sig.offset() : 0;
+            double factor = qIsNaN(sig.factor()) ? 1 : sig.factor();
+            double scaling = qIsNaN(sig.scaling()) ? 1 : sig.scaling();
+            double offset = qIsNaN(sig.offset()) ? 0 : sig.offset();
 
             double physical_value = scaling * (raw * factor + offset);
             if (sig.maximum() != qQNaN() && physical_value > sig.maximum())
@@ -329,6 +329,7 @@ void CanSniffer::add_j1939_msg_to_buffer(const J1939Msg* msg)
 
             // TODO: not handling multiplexed signals... no Qt documentation yet?
 
+            signal_values[sig.name()] = physical_value;
             physical_units[sig.name()] = sig.physicalUnit();
         }
     }

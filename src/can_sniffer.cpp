@@ -308,7 +308,6 @@ void CanSniffer::add_j1939_msg_to_buffer(const J1939Msg* msg)
 
     QVariantMap signal_values;
     QVariantMap physical_units;
-    QList<QString> physical_units_old;
     if (pgn_database.contains(msg->pgn))
     {
         QList<QCanSignalDescription> signal_desc = pgn_database.value(msg->pgn)->signalDescriptions();

@@ -36,19 +36,19 @@ BS_:
 BU_:
 
 BO_ 2365523200 test_short: 2 Vector__XXX
- SG_ zero : 0|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ one : 8|8@1+ (0,0) [0|255] "unit" Vector__XXX
+ SG_ zero : 0|8@1+ (0,0) [0|255] "u0" Vector__XXX
+ SG_ one : 8|8@1+ (0,0) [0|255] "u1" Vector__XXX
 
 BO_ 2365522944 test_long: 9 Vector__XXX
- SG_ zero : 0|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ one : 8|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ two : 16|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ three : 24|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ four : 32|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ five : 40|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ six : 48|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ seven : 56|8@1+ (0,0) [0|255] "unit" Vector__XXX
- SG_ eight : 64|8@1+ (0,0) [0|255] "unit" Vector__XXX
+ SG_ zero : 0|8@1+ (0,0) [0|255] "u0" Vector__XXX
+ SG_ one : 8|8@1+ (0,0) [0|255] "u1" Vector__XXX
+ SG_ two : 16|8@1+ (0,0) [0|255] "u2" Vector__XXX
+ SG_ three : 24|8@1+ (0,0) [0|255] "u3" Vector__XXX
+ SG_ four : 32|8@1+ (0,0) [0|255] "u4" Vector__XXX
+ SG_ five : 40|8@1+ (0,0) [0|255] "u5" Vector__XXX
+ SG_ six : 48|8@1+ (0,0) [0|255] "u6" Vector__XXX
+ SG_ seven : 56|8@1+ (0,0) [0|255] "u7" Vector__XXX
+ SG_ eight : 64|8@1+ (0,0) [0|255] "u8" Vector__XXX
 
 
 

@@ -7,6 +7,7 @@ struct VisualFrame
 {
     double timestamp;
     quint32 id;
+    QString name;
     quint8 src;
     quint8 dst;
     quint8 pri;

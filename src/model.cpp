@@ -41,7 +41,7 @@ int Model::rowCount(const QModelIndex& parent) const
 int Model::columnCount(const QModelIndex& parent) const
 {
     Q_UNUSED(parent);
-    return 8;
+    return 9;
 }
 
 QVariant Model::data(const QModelIndex& index, int role) const
@@ -60,20 +60,22 @@ QVariant Model::data(const QModelIndex& index, int role) const
                QString{ "0x" } + QString{ "%1" }.arg(this_frame.id, 0, 16).toUpper() :
                QString{};
     case 2:
+        return this_frame.name;
+    case 3:
         return this_frame.extended ?
                QString{ "0x" } + QString{ "%1" }.arg(this_frame.src, 0, 16).toUpper() :
                QString{};
-    case 3:
+    case 4:
         return this_frame.extended ?
                QString{ "0x" } + QString{ "%1" }.arg(this_frame.dst, 0, 16).toUpper() :
                QString{};
-    case 4:
-        return QString{ "%1" }.arg(this_frame.pri);
     case 5:
-        return QString{ "%1" }.arg(this_frame.len);
+        return QString{ "%1" }.arg(this_frame.pri);
     case 6:
-        return get_signal_values_string(this_frame);
+        return QString{ "%1" }.arg(this_frame.len);
     case 7:
+        return get_signal_values_string(this_frame);
+    case 8:
         return get_payload_string(this_frame);
     default:
         return QString{};
@@ -92,16 +94,18 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
     case 1:
         return QString{ "ID" };
     case 2:
-        return QString{ "src" };
+        return QString{ "Name" };
     case 3:
-        return QString{ "dst" };
+        return QString{ "src" };
     case 4:
-        return QString{ "pri" };
+        return QString{ "dst" };
     case 5:
-        return QString{ "len" };
+        return QString{ "pri" };
     case 6:
-        return QString{ "signals" };
+        return QString{ "len" };
     case 7:
+        return QString{ "signals" };
+    case 8:
         return QString{ "data" };
     default:
         return QString{};

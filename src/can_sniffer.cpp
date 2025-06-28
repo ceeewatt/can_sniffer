@@ -252,6 +252,7 @@ void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
     quint8 dst{};
     QVariantMap signal_values;
     QVariantMap physical_units;
+    QString message_name;
     bool extended;
     if (qframe.hasExtendedFrameFormat())
     {
@@ -268,6 +269,7 @@ void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
             //  on the bus if the node addresses aren't static.
             signal_values = frame_processor.parseFrame(qframe).signalValues;
             const QCanMessageDescription* msg_desc = pgn_database.value(converter.pgn);
+            message_name = msg_desc->name();
 
             // Create a mapping of signal name <-> physical unit, with the same key order as
             //  signal_values.
@@ -288,6 +290,7 @@ void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
     VisualFrame vf {
         .timestamp = get_timestamp(qframe.timeStamp()),
         .id = static_cast<quint32>(qframe.frameId()),
+        .name = message_name,
         .src = converter.sa,
         .dst = dst,
         .pri = converter.pri,
@@ -308,9 +311,12 @@ void CanSniffer::add_j1939_msg_to_buffer(const J1939Msg* msg)
 
     QVariantMap signal_values;
     QVariantMap physical_units;
+    QString message_name;
     if (pgn_database.contains(msg->pgn))
     {
-        QList<QCanSignalDescription> signal_desc = pgn_database.value(msg->pgn)->signalDescriptions();
+        const QCanMessageDescription* msg_desc = pgn_database.value(msg->pgn);
+        QList<QCanSignalDescription> signal_desc = msg_desc->signalDescriptions();
+        message_name = msg_desc->name();
 
         uint64_t raw{};
         for (const QCanSignalDescription& sig : signal_desc)
@@ -337,6 +343,7 @@ void CanSniffer::add_j1939_msg_to_buffer(const J1939Msg* msg)
     VisualFrame vf {
         .timestamp = (QDateTime::currentMSecsSinceEpoch() - reference_time_ms) / 1000.0,
         .id = static_cast<quint32>(j1939_msg_to_can_id(msg)),
+        .name = message_name,
         .src = msg->src,
         .dst = msg->dst,
         .pri = msg->pri,

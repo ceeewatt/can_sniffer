@@ -249,42 +249,37 @@ bool CanSniffer::can_rx(struct J1939CanFrame* jframe)
 void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
 {
     CanIdConverter converter;
-    quint8 dst{};
+    quint8 dst = j1939_can_id_converter(&converter, qframe.frameId()) ? J1939_ADDR_GLOBAL : converter.ps;
     QVariantMap signal_values;
     QVariantMap physical_units;
     QString message_name;
-    bool extended;
-    if (qframe.hasExtendedFrameFormat())
-    {
-        extended = true;
-        if (j1939_can_id_converter(&converter, qframe.frameId()))
-            dst = J1939_ADDR_GLOBAL;
-        else
-            dst = converter.ps;
 
-        if (pgn_database.contains(converter.pgn))
+    if (pgn_database.contains(converter.pgn))
+    {
+        const QCanMessageDescription* msg_desc = pgn_database.value(converter.pgn);
+        QList<QCanSignalDescription> signal_desc = msg_desc->signalDescriptions();
+        message_name = msg_desc->name();
+
+        uint64_t raw{};
+        for (const QCanSignalDescription& sig : signal_desc)
         {
-            // TODO: could cause issues if this lookup relies on matching against
-            //  CAN ID. The CAN ID in the DBC won't necessarily reflect the CAN ID
-            //  on the bus if the node addresses aren't static.
-            signal_values = frame_processor.parseFrame(qframe).signalValues;
-            const QCanMessageDescription* msg_desc = pgn_database.value(converter.pgn);
-            message_name = msg_desc->name();
+            raw = extract_raw_signal(reinterpret_cast<uint8_t*>(qframe.payload().data()), sig.startBit(), sig.bitLength(), sig.dataEndian() == QSysInfo::LittleEndian);
 
-            // Create a mapping of signal name <-> physical unit, with the same key order as
-            //  signal_values.
-            for (auto it = signal_values.cbegin(), end = signal_values.cend(); it != end; ++it)
-            {
-                QString name = it.key();
+            double factor = qIsNaN(sig.factor()) ? 1 : sig.factor();
+            double scaling = qIsNaN(sig.scaling()) ? 1 : sig.scaling();
+            double offset = qIsNaN(sig.offset()) ? 0 : sig.offset();
 
-                physical_units[name] = msg_desc->signalDescriptionForName(name).physicalUnit();
-            }
+            double physical_value = scaling * (raw * factor + offset);
+            if (sig.maximum() != qQNaN() && physical_value > sig.maximum())
+                physical_value = sig.maximum();
+            else if (sig.minimum() != qQNaN() && physical_value < sig.minimum())
+                physical_value = sig.minimum();
+
+            // TODO: not handling multiplexed signals... no Qt documentation yet?
+
+            signal_values[sig.name()] = physical_value;
+            physical_units[sig.name()] = sig.physicalUnit();
         }
-    }
-    else
-    {
-        // Note: Purposefully not parsing CAN2.0A frames.
-        extended = false;
     }
 
     VisualFrame vf {
@@ -298,7 +293,7 @@ void CanSniffer::add_qframe_to_buffer(const QCanBusFrame& qframe)
         .signal_values = signal_values,
         .payload = qframe.payload(),
         .physical_units = physical_units,
-        .extended = extended
+        .extended = qframe.hasExtendedFrameFormat()
     };
 
     buffer.enqueue(vf);

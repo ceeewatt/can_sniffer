@@ -36,7 +36,7 @@ public:
     };
 
 public:
-    CanSniffer(QTableView& tv, QObject* parent = nullptr);
+    CanSniffer(QTableView* tv, QObject* parent = nullptr);
 
 public slots:
     // TODO: connect to appropriate widget signals

@@ -78,12 +78,12 @@ double CanSniffer::get_timestamp(const QCanBusFrame::TimeStamp& timestamp)
  * ============================================================================
  */
 
-CanSniffer::CanSniffer(QTableView& tv, QObject* parent)
+CanSniffer::CanSniffer(QTableView* tv, QObject* parent)
     : QObject{ parent }
 {
     g_can_sniffer = this;
 
-    tv.setModel(&buffer);
+    tv->setModel(&buffer);
 
     (void)j1939_init(
         &j1939,
@@ -99,6 +99,11 @@ CanSniffer::CanSniffer(QTableView& tv, QObject* parent)
     QObject::connect(
         &j1939_timer, &QTimer::timeout,
         this, &CanSniffer::j1939_update);
+
+    // Autoscroll view when new rows are inserted
+    QObject::connect(
+        &buffer, &Model::rowsInserted,
+        tv, &QTableView::scrollToBottom);
 }
 
 /* ============================================================================
@@ -119,9 +124,13 @@ QList<QString> CanSniffer::available_devices()
         
     }
 
-    QList<QString> dev_names( dev_list.size() );
+    QList<QString> dev_names;
     for (const QCanBusDeviceInfo& dev : dev_list)
-        dev_names.append(dev.name());
+    {
+        // TODO: a quick hack until we add support for other plugins
+        if (dev.plugin() == "socketcan")
+            dev_names.append(dev.name());
+    }
 
     return dev_names;
 }

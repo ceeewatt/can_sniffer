@@ -25,6 +25,7 @@ find_package(Qt6 REQUIRED COMPONENTS ${QT_PACKAGES})
 
 qt_add_executable(can_sniffer
     ${SOURCES}
+    main_window.h
 )
 
 target_compile_options(can_sniffer PRIVATE
